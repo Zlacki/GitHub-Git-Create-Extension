@@ -1,0 +1,56 @@
+#!/bin/bash
+#        DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+#                    Version 2, December 2004
+#
+# Copyright (C) 2018 Zachariah Knight <aeros.storkpk@gmail.com>
+#
+# Everyone is permitted to copy and distribute verbatim or modified
+# copies of this license document, and changing it is allowed as long
+# as the name is changed.
+#
+#            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+#   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
+#
+#  0. You just DO WHAT THE FUCK YOU WANT TO.
+#
+#
+#
+# Made this to improve the automated `git create <repo_name> extension some random githubber started.
+# His version didn't have any support for multiple word named repositories, and I generally found the
+# bash-script to be ugly, for lack of a better term.
+#
+# TODO: better non-ASCII removal  Base37 only is ideal, but if it detects something outside of base37.
+# I think GNU/POSIX/UNIX/w.e standardized it like this?  lol iduno
+#
+# Openly available as FOSS under the WTFPLv2
+USERNAME='Zlacki'
+WORD_ARRAY=()
+let index=0
+let max=$#
+
+if [[ $max -eq 0 ]]
+then
+	echo 'You must enter a name for the GitHub repository.'
+	exit 1
+fi
+
+for word in $@
+do
+	if ! [[ $index -eq $max ]]
+	then
+		WORD_ARRAY+=' '$word
+	fi
+#	echo 'Cur word: ' $word
+	let index++
+done
+
+repo_name=${WORD_ARRAY[@]}
+repo_url=`echo $repo_name  |sed 's/\ /-/g;' |tr -cd "[:alnum:]-"`
+echo $index " arguments processed..."
+echo "Repo Name: " $repo_url
+echo "Repo whitespace intact: " $repo_name
+
+
+curl -u $USERNAME https://api.github.com/user/repos -d "{\"name\":\"$repo_url\"}"
+git init
+git remote add origin "https://github.com/$USERNAME/$repo_url.git"
